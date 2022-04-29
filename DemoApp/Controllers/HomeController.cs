@@ -1,8 +1,11 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Queues;
 using DemoApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
+using Microsoft.WindowsAzure.Storage;
 using System.Diagnostics;
+using System.Text;
 
 namespace DemoApp.Controllers
 {
@@ -23,9 +26,10 @@ namespace DemoApp.Controllers
             string accesstoken = await _token.GetAccessTokenForUserAsync(scopes);
             ViewBag.Accesstoken = accesstoken;*/
 
-            Uri blobUri = new Uri("https://anushkademostore.blob.core.windows.net/democont/sample.txt");
-
             TokenAcquisitionTokenCredential credential = new TokenAcquisitionTokenCredential(_token);
+
+            Uri blobUri = new Uri("https://anushkademostore.blob.core.windows.net/democont/sample.txt");
+            
             BlobClient blobClient = new BlobClient(blobUri, credential);
 
             using var ms = new MemoryStream();
@@ -33,9 +37,15 @@ namespace DemoApp.Controllers
             ms.Position = 0;
             using var _reader = new StreamReader(ms);
             string str = _reader.ReadToEnd();
-            ViewBag.content = str;
+            ViewBag.blobst = str;
 
             return View();
+        }
+
+        byte[] FromBase64Bytes(byte[] base64Bytes)
+        {
+            string base64String = Encoding.UTF8.GetString(base64Bytes, 0, base64Bytes.Length);
+            return Convert.FromBase64String(base64String);
         }
 
         public IActionResult Privacy()
